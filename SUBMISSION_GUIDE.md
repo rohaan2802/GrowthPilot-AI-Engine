@@ -27,11 +27,13 @@ Copy and paste these exact answers into the corresponding fields of the Google F
 ### 2. Repository & Deployment Links
 - **GitHub Repository URL:**  
   `https://github.com/rohaan2802/GrowthPilot-AI-Engine`
+- **Live Website URL:**  
+  `https://growthpilot-ai-engine.onrender.com/`
 - **Agent API Base URL:**  
-  `http://127.0.0.1:8000` *(Or Hugging Face Spaces / Render URL if deployed online)*
-- **Endpoints Provided:**
-  - `POST /chat` (Accepts `{"user_id": "...", "thread_id": "...", "message": "..."}`)
-  - `GET /health` (Returns `ok`)
+  `https://growthpilot-ai-engine.onrender.com`
+- **Grading Endpoints Provided (Verified 200 OK):**
+  - `POST https://growthpilot-ai-engine.onrender.com/chat` (Returns `reply`, `tool_calls`, and `tokens: {"in": ..., "out": ...}`)
+  - `GET https://growthpilot-ai-engine.onrender.com/health` (Returns `ok`)
 - **tests.json Location:**  
   `https://github.com/rohaan2802/GrowthPilot-AI-Engine/blob/main/tests.json` (15 comprehensive test cases)
 

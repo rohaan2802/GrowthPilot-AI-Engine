@@ -183,7 +183,9 @@ docker run -p 8000:8000 growthpilot
 
 ## 🔗 Deliverables & Links
 
+- **Live Website URL:** [https://growthpilot-ai-engine.onrender.com/](https://growthpilot-ai-engine.onrender.com/)
+- **Agent API Base URL:** `https://growthpilot-ai-engine.onrender.com`
+  - `POST https://growthpilot-ai-engine.onrender.com/chat`
+  - `GET https://growthpilot-ai-engine.onrender.com/health`
 - **Paper Canvas Photo:** [View Uploaded Canvas Activity](file:///C:/Users/CodeTech/Desktop/Today_WorkShop/Workshop%20Project%20Written%20Format/WorkShop_Wtitten_Activity.pdf)
 - **Demo Video:** *[Insert YouTube Unlisted / Google Drive Link]*
-- **Live Deployment URL:** *[Insert Vercel / Render Live URL]*
-- **Agent API Base URL:** `https://your-deployment-url/chat`
