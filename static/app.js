@@ -120,6 +120,9 @@ async function handleChatSubmit(e) {
     });
     const data = await res.json();
     document.getElementById(thinkingId)?.remove();
+    if (!res.ok || typeof data.reply !== "string") {
+      throw new Error((data && data.detail) ? JSON.stringify(data.detail) : `HTTP ${res.status}`);
+    }
 
     // Render tool calls if any
     let toolCallsHtml = "";
@@ -127,7 +130,7 @@ async function handleChatSubmit(e) {
       toolCallsHtml = `
         <div class="mt-2 pt-2 border-t border-slate-700 text-[11px] text-slate-400 space-y-1 font-mono">
           <div class="text-emerald-400 font-semibold">⚡ Tools Called:</div>
-          ${data.tool_calls.map(tc => `<div>• <span class="text-white">${tc.name}</span>(${JSON.stringify(tc.args)})</div>`).join("")}
+          ${data.tool_calls.map(tc => `<div>• <span class="text-white">${escapeHtml(tc.name)}</span>(${escapeHtml(JSON.stringify(tc.args))})</div>`).join("")}
         </div>
       `;
     }
@@ -154,7 +157,7 @@ async function handleChatSubmit(e) {
       <div class="flex gap-3 items-start">
         <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0">⚠️</div>
         <div class="bg-red-950/40 p-3 rounded-2xl border border-red-800 text-red-200 text-xs">
-          Error contacting agent API: ${err.message}
+          Error contacting agent API: ${escapeHtml(err.message)}
         </div>
       </div>
     `;
@@ -205,7 +208,7 @@ function renderKanban(leads) {
 
   const discLeads = leads.filter(l => l.stage === "Discovered" || l.stage === "Enriched");
   const apprLeads = leads.filter(l => l.stage === "Needs Approval");
-  const contLeads = leads.filter(l => l.stage === "Contacted" || l.stage === "Closed");
+  const contLeads = leads.filter(l => ["Contacted", "Replied", "Meeting Booked", "Closed Won", "Closed Lost", "Closed"].includes(l.stage));
 
   document.getElementById("count-col-discovered").innerText = discLeads.length;
   document.getElementById("count-col-approval").innerText = apprLeads.length;
@@ -325,13 +328,13 @@ function renderMemories(memories) {
         <span class="text-emerald-400 font-semibold">${escapeHtml(k.replace(/_/g, ' ').toUpperCase())}:</span>
         <span class="text-slate-200 ml-1.5">${escapeHtml(memories[k])}</span>
       </div>
-      <button onclick="deleteMemoryItem('${k}')" class="text-slate-500 hover:text-red-400 text-xs px-2 py-0.5">✕</button>
+      <button onclick="deleteMemoryItem(${escapeHtml(JSON.stringify(k))})" class="text-slate-500 hover:text-red-400 text-xs px-2 py-0.5">✕</button>
     </div>
   `).join("");
 }
 
 async function deleteMemoryItem(key) {
-  await fetch(`/api/memories/${key}?user_id=${currentUserId}`, { method: "DELETE" });
+  await fetch(`/api/memories/${encodeURIComponent(key)}?user_id=${encodeURIComponent(currentUserId)}`, { method: "DELETE" });
   refreshCustomerData();
 }
 
@@ -464,12 +467,12 @@ async function runBenchmarkInUI() {
 // Helpers
 function escapeHtml(str) {
   if (!str) return "";
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 function formatBotReply(text) {
   if (!text) return "";
-  return text
+  return escapeHtml(text)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>');
 }

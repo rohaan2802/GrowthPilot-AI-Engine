@@ -12,3 +12,7 @@ services:
         value: claude-haiku-5-5
       - key: ANTHROPIC_API_KEY
         sync: false
+      # Optional but recommended: Neon / Supabase Postgres URL so memory survives restarts.
+      # Leave unset to use the container's local SQLite file (ephemeral on Render free tier).
+      - key: DATABASE_URL
+        sync: false

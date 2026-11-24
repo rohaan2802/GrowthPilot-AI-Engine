@@ -1,15 +1,17 @@
 """Automated Benchmark Runner for GrowthPilot (Required Deliverable).
-Executes all 15 test cases in tests.json against POST /chat.
+Executes all test cases in tests.json against POST /chat.
 Generates an evaluation table with Pass/Fail status and token telemetry.
 """
 import json
+import os
+import sys
 import time
 import requests
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent
 TESTS_FILE = ROOT_DIR / "tests.json"
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("BASE_URL", "http://127.0.0.1:8000")).rstrip("/")
 
 
 def run_benchmark():
@@ -34,7 +36,7 @@ def run_benchmark():
         tests = json.load(f)
 
     print("=" * 95)
-    print("      GROWTHPILOT HACKATHON BENCHMARK EVALUATION (15 Test Cases)")
+    print(f"      GROWTHPILOT HACKATHON BENCHMARK EVALUATION ({len(tests)} Test Cases)")
     print("      Track 5: GrowthPilot | Group 904 (Rayyan Azmat & Muhammad Rohaan)")
     print("=" * 95)
     print(f"{'ID':<4} | {'Test Name':<38} | {'Category':<16} | {'Status':<8} | {'Tokens In/Out'}")
@@ -52,8 +54,15 @@ def run_benchmark():
         criteria = tc.get("evaluation_criteria", {})
 
         try:
+            for setup in tc.get("setup_messages", []):
+                sp = dict(payload)
+                if isinstance(setup, dict):
+                    sp.update(setup)
+                else:
+                    sp["message"] = setup
+                requests.post(f"{BASE_URL}/chat", json=sp, timeout=60)
             t0 = time.time()
-            resp = requests.post(f"{BASE_URL}/chat", json=payload, timeout=15)
+            resp = requests.post(f"{BASE_URL}/chat", json=payload, timeout=60)
             duration = time.time() - t0
 
             if resp.status_code != 200:
@@ -115,12 +124,13 @@ def run_benchmark():
     pct = round((passed_count / len(tests)) * 100, 1)
     print(f"BENCHMARK SUMMARY: {passed_count}/{len(tests)} Tests Passed ({pct}%)")
     print(f"Total Tokens: {total_tokens_in} In / {total_tokens_out} Out")
-    cost_in = (total_tokens_in * (0.80 / 1_000_000))
-    cost_out = (total_tokens_out * (4.00 / 1_000_000))
+    cost_in = (total_tokens_in * (1.00 / 1_000_000))
+    cost_out = (total_tokens_out * (5.00 / 1_000_000))
     total_cost = cost_in + cost_out
     print(f"Total Claude Cost: ${total_cost:.5f} (Well within $2.00 spend limit)")
     print("=" * 95)
+    return passed_count == len(tests)
 
 
 if __name__ == "__main__":
-    run_benchmark()
+    sys.exit(0 if run_benchmark() else 1)

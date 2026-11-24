@@ -27,3 +27,5 @@ Thumbs.db
 
 # Scratch test files
 test_key.py
+*.db-wal
+*.db-shm

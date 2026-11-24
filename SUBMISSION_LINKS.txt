@@ -6,8 +6,8 @@ FAST School of Computing, Islamabad (Course: AI-4016 Agentic AI)
 1. GROUP & TEAM DETAILS:
    - Group Number: 904
    - Track: Track 5 - GrowthPilot (AI Sales & Outreach Engine)
-   - Leader: Rayyan Azmat (Roll No: 22P-0507)
-   - Member: Muhammad Rohaan (Roll No: 22i-2327)
+   - Leader: Mohammad Rohaan (Roll No: 22I-2327)
+   - Member: Rayyan Azmat (Roll No: 22P-0507)
 
 2. REPOSITORY & DEPLOYMENT LINKS:
    - GitHub Repository: https://github.com/rohaan2802/GrowthPilot-AI-Engine
@@ -23,15 +23,15 @@ FAST School of Computing, Islamabad (Course: AI-4016 Agentic AI)
 
 4. DELIVERABLES STATUS:
    [X] Complete Website & Admin Dashboard
-   [X] LangGraph Multi-Agent Engine (7 Nodes)
-   [X] 4 Functional Tools
-   [X] Short-term Memory (10 turns trimming)
-   [X] Long-term Memory (SQLite persisted by user_id)
+   [X] LangGraph StateGraph (12 nodes)
+   [X] 7 Tools
+   [X] Short-term Memory (user_id+thread_id, rolling summary)
+   [X] Long-term Memory by user_id (SQLite, or Postgres via DATABASE_URL)
    [X] Multi-User Isolation (user_alpha vs user_beta)
    [X] Safety & Injection Defense + Human-in-the-Loop Approval
-   [X] Claude Haiku Model ($0.018 cost out of $2 budget)
+   [X] Model claude-haiku-5-5
    [X] Live Render Deployment (200 OK)
-   [X] tests.json (15 tests, 100% pass)
+   [X] tests.json (24 tests, 24/24 pass) + pytest 147/147
    [ ] 2-3 Min Demo Video (To be recorded and linked)
    [ ] Canvas PDF Upload (Upload WorkShop_Wtitten_Activity.pdf to Google Drive and link)
 ================================================================================

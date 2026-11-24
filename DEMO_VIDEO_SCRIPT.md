@@ -53,5 +53,5 @@
   2. Click **Admin Dashboard** in top navigation.
 - **Speaker:**  
   > "We also enforce strict multi-user isolation. Switching from `user_alpha` to `user_beta` completely isolates all leads, memories, and approvals — User B can never see User A's data.  
-  > Finally, on our **Admin Dashboard**, you can see real-time token tracking and telemetry. Using the Claude Haiku model, our entire 15-test benchmark and live runs cost only **$0.018**, keeping us comfortably within our $2 budget.  
+  > Finally, on our **Admin Dashboard**, you can see real-time token tracking and telemetry. Using the Claude Haiku model, lead search, CRM and safety run deterministically, so the 24-test benchmark costs almost nothing and we stay well within our $2 budget.  
   > Everything is open-source on our GitHub repo with 15/15 passing tests and automated grading endpoints ready. Thank you!"

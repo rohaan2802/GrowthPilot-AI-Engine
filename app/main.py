@@ -7,21 +7,24 @@ Plus comprehensive REST APIs for the Customer Facing Page & Admin Dashboard.
 """
 import os
 import time
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, PlainTextResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ConfigDict
 
 from app.agent import run_growthpilot_workflow
+from app.config import MAX_MESSAGE_CHARS
 from app.db import (
     get_user_leads, upsert_lead, update_lead_stage,
     get_user_approvals, resolve_approval,
     get_memories, save_memory, delete_memory,
-    get_admin_metrics
+    get_admin_metrics, PIPELINE_STAGES
 )
 
 app = FastAPI(
@@ -43,9 +46,10 @@ app.add_middleware(
 # ── Pydantic Request / Response Models ──
 
 class ChatRequest(BaseModel):
-    user_id: str = Field(..., description="Unique user identifier for multi-user isolation")
-    thread_id: str = Field(..., description="Unique session identifier for short-term memory")
-    message: str = Field(..., description="User prompt or sales instruction")
+    model_config = ConfigDict(extra="ignore")
+    user_id: Union[str, int] = Field(..., description="Unique user identifier for multi-user isolation")
+    thread_id: Union[str, int] = Field(..., description="Unique session identifier for short-term memory")
+    message: Union[str, int, float] = Field(..., description="User prompt or sales instruction")
 
 
 class TokenCount(BaseModel):
@@ -81,10 +85,14 @@ class MemoryItem(BaseModel):
 
 # ── MANDATORY HACKATHON GRADING ENDPOINTS ──
 
-@app.get("/health", response_class=PlainTextResponse)
+@app.api_route("/health", methods=["GET", "HEAD"], response_class=PlainTextResponse)
 def health():
     """Required grading endpoint: GET /health returns 'ok'."""
     return "ok"
+
+
+def _chat_reply(reply: str, tool_calls=None, tin: int = 0, tout: int = 0) -> Dict[str, Any]:
+    return {"reply": reply, "tool_calls": tool_calls or [], "tokens": {"in": int(tin), "out": int(tout)}}
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -93,21 +101,36 @@ def chat_endpoint(req: ChatRequest):
     POST /chat body: {"user_id": "...", "thread_id": "...", "message": "..."}
     returns: {"reply": "...", "tool_calls": [...], "tokens": {"in": 0, "out": 0}}
     """
-    if not req.user_id or not req.thread_id or not req.message:
-        raise HTTPException(status_code=400, detail="user_id, thread_id, and message are required.")
+    user_id = str(req.user_id).strip()
+    thread_id = str(req.thread_id).strip()
+    message = str(req.message).strip()
+    if not user_id or not thread_id:
+        raise HTTPException(status_code=400, detail="user_id and thread_id must be non-empty.")
+    if not message:
+        return _chat_reply("Please type a message. For example: 'Find cybersecurity SaaS companies with 20-50 employees'.")
+    if len(message) > MAX_MESSAGE_CHARS:
+        return _chat_reply(f"Your message is too long ({len(message)} characters). Please keep it under {MAX_MESSAGE_CHARS} characters.")
+    try:
+        result = run_growthpilot_workflow(user_id=user_id, thread_id=thread_id, user_message=message)
+    except Exception:
+        return _chat_reply("Sorry — something went wrong while processing your request. Please try again.")
+    tokens = result.get("tokens") or {}
+    return _chat_reply(result.get("reply") or "", result.get("tool_calls") or [], tokens.get("in", 0), tokens.get("out", 0))
 
-    result = run_growthpilot_workflow(
-        user_id=req.user_id.strip(),
-        thread_id=req.thread_id.strip(),
-        user_message=req.message.strip()
-    )
 
-    tokens_dict = result.get("tokens", {"in": 0, "out": 0})
-    return ChatResponse(
-        reply=result["reply"],
-        tool_calls=result.get("tool_calls", []),
-        tokens=TokenCount(**{"in": tokens_dict.get("in", 0), "out": tokens_dict.get("out", 0)})
-    )
+@app.exception_handler(RequestValidationError)
+async def validation_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=422, content={
+        "detail": "Invalid request body. Expected JSON: {\"user_id\": \"...\", \"thread_id\": \"...\", \"message\": \"...\"}",
+        "errors": [{"loc": list(e.get("loc", [])), "msg": e.get("msg")} for e in exc.errors()],
+    })
+
+
+@app.exception_handler(Exception)
+async def unhandled_handler(request: Request, exc: Exception):
+    if request.url.path == "/chat":
+        return JSONResponse(status_code=200, content=_chat_reply("Sorry — something went wrong. Please try again."))
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 # ── CUSTOMER & PIPELINE REST ENDPOINTS ──
@@ -128,6 +151,8 @@ def create_lead(lead_data: Dict[str, Any], user_id: str = Query(...)):
 @app.post("/api/leads/{lead_id}/stage")
 def update_stage(lead_id: str, payload: LeadStageUpdate, user_id: str = Query(...)):
     """Move a lead across Kanban pipeline stages."""
+    if payload.stage not in PIPELINE_STAGES:
+        raise HTTPException(status_code=400, detail=f"Invalid stage. Valid: {PIPELINE_STAGES}")
     success = update_lead_stage(user_id, lead_id, payload.stage)
     if not success:
         raise HTTPException(status_code=404, detail="Lead not found or unauthorized")
@@ -143,6 +168,8 @@ def get_approvals(user_id: str = Query(...), status: str = "pending"):
 @app.post("/api/approve")
 def handle_approval(payload: ApprovalAction):
     """Human-in-the-loop action: Approve, Reject, or Edit & Send outreach."""
+    if payload.action not in ("approve", "reject", "edit", "send"):
+        raise HTTPException(status_code=400, detail="action must be approve, reject, edit or send")
     success = resolve_approval(
         user_id=payload.user_id,
         approval_id=payload.approval_id,
@@ -170,7 +197,8 @@ def set_memory(item: MemoryItem):
 @app.delete("/api/memories/{key}")
 def remove_memory(key: str, user_id: str = Query(...)):
     """Delete a memory item."""
-    delete_memory(user_id, key)
+    if not delete_memory(user_id, key):
+        raise HTTPException(status_code=404, detail="Memory not found")
     return {"status": "success", "deleted": key}
 
 
