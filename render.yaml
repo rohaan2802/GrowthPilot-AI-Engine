@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: growthpilot-ai-engine
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: MODEL_NAME
+        value: claude-haiku-5-5
+      - key: ANTHROPIC_API_KEY
+        sync: false
