@@ -1,0 +1,56 @@
+/* Custom styling for GrowthPilot */
+.active-tab {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.active-subtab {
+  background-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+.chip-btn {
+  background-color: #1e293b;
+  color: #94a3b8;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid #334155;
+  transition: all 0.15s ease-in-out;
+}
+
+.chip-btn:hover {
+  background-color: #334155;
+  color: #f8fafc;
+  border-color: #10b981;
+}
+
+/* Kanban Card */
+.kanban-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.15s;
+}
+
+.kanban-card:hover {
+  border-color: #10b981;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

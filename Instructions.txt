@@ -1,0 +1,64 @@
+Design to Production: Agentic AI Hackathon (5 Absolutes)
+
+Each group will build and deploy a complete AI agent product that can earn real money. Your group's Claude API key has been emailed to your group leader (members are CC'd). Use only your own group's key.
+
+PICK ONE TRACK
+1. ShopBot – AI storefront with a sales agent for small sellers
+2. AdForge – AI ad agency: ad copy, creatives, A/B testing, results
+3. DealCloser – Lead closer for real estate / car dealers (qualify, follow up, book visits)
+4. RankForge – SEO and affiliate content engine
+5. GrowthPilot – AI sales and outreach engine (find leads, write outreach, track pipeline)
+
+MUST-HAVE REQUIREMENTS
+- Complete website: customer page + admin dashboard (not just a chat box)
+- Agent built with LangGraph, at least 2 agents/nodes
+- At least 2 real tools
+- Short-term memory (per conversation, using thread_id)
+- Long-term memory (per user, across conversations, using user_id)
+- Multiple users kept separate: one user must never see another user's data
+- Safety: refuses off-topic requests and prompt injection, and asks before risky actions
+- Model: claude-haiku-5-5 (your key has a $2 spend limit)
+
+AGENT API (REQUIRED FOR GRADING)
+Your agent must expose these two endpoints, open without login:
+  POST /chat   body: {"user_id": "...", "thread_id": "...", "message": "..."}
+               returns: {"reply": "...", "tool_calls": [...], "tokens": {"in": 0, "out": 0}}
+  GET /health  returns: ok
+Your agent will be tested automatically through this API, so follow the format exactly.
+
+DEPLOYMENT (FREE)
+- Website: Vercel (free Hobby plan)
+- Agent API: Hugging Face Spaces (Docker) or Render (free tier)
+- Memory: store long-term memory in a free hosted database (Supabase or Neon Postgres). Do NOT rely on in-memory storage. It is lost when your server restarts, and your memory tests will fail.
+
+WHAT TO PREPARE
+1. Live website URL
+2. Agent API base URL
+3. Public GitHub repo. The README must include an architecture diagram, setup steps, a demo GIF, a benchmark table, and a short memory design note (what goes in short-term vs long-term memory, where it is stored, how users are kept separate). Include a .env.example file. Do NOT commit your API key.
+4. tests.json in your repo: your own 10 test cases (input + expected behaviour)
+5. 2–3 minute demo video (YouTube unlisted or Drive, viewable by anyone with the link)
+6. Photo of your paper canvas from the workshop (Drive link, viewable by anyone with the link)
+
+HOW TO SUBMIT (BOTH ARE REQUIRED)
+1. Fill in the submission form (group leader only):
+https://docs.google.com/forms/d/e/1FAIpQLSd0cLrSXbuGEUVwVh2cLP3m58tq6-eE5sgR58QgxKpJux-mPA/viewform
+The form also asks how your agent works (nodes, tools, memory, safety, demo data). Answer carefully: these answers decide what your agent is tested on. You can edit your response until the deadline.
+2. Submit the same links here on Google Classroom.
+
+HOW YOU WILL BE EVALUATED (100 marks, scaled to 5 absolutes)
+Your deployed agent will be run through a hidden benchmark:
+- Task success on track tasks – 25
+- Tool use accuracy – 10
+- Short-term memory – 10
+- Long-term memory – 10
+- User isolation – 5
+- Reliability (consistency, error handling, speed) – 15
+- Cost efficiency (measured from your own workspace usage) – 10
+- Safety – 5
+- Product quality, GitHub and demo – 10
+Best group in each track gets a certificate, and the overall winner demos in class.
+
+DEADLINE: Monday 23 November 2026, 11:59 PM
+Evaluation runs on Tuesday 24 November. Keep your website and API live until Wednesday 25 November. Any agent that is offline during evaluation scores 0 on the automated tests.
+
+Rules: Do not share your key outside your group. Any leaked key will be disabled.

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrowthPilot — AI Sales & Outreach Engine</title>
+  <!-- Tailwind CSS Local (instant load, no CDN network delay) -->
+  <script src="/static/tailwind.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <span class="text-xl">🚀</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg text-white tracking-tight">GrowthPilot</h1>
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Agentic v1.0</span>
+          </div>
+          <p class="text-xs text-slate-400">AI Sales & Outbound Engine · Group 904 (FAST Islamabad)</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs & User Switcher -->
+      <div class="flex items-center gap-4">
+        <nav class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <button id="nav-customer" onclick="switchView('customer')" class="nav-btn px-4 py-1.5 rounded-lg text-xs font-semibold transition active-tab">
+            Customer Workspace
+          </button>
+          <button id="nav-admin" onclick="switchView('admin')" class="nav-btn px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+            Admin Dashboard
+          </button>
+        </nav>
+
+        <!-- User Isolation Switcher -->
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <span class="text-slate-400">Active User:</span>
+          <select id="user-select" onchange="changeUser()" class="bg-transparent text-emerald-400 font-semibold focus:outline-none cursor-pointer">
+            <option value="user_alpha" selected>user_alpha (Alpha SaaS)</option>
+            <option value="user_beta">user_beta (Beta Agency)</option>
+            <option value="evaluator_demo">evaluator_demo (Judge)</option>
+          </select>
+        </div>
+
+        <a href="/docs" target="_blank" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition border border-slate-700">
+          Swagger API ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: CUSTOMER FACING WORKSPACE -->
+    <!-- ========================================== -->
+    <div id="view-customer" class="space-y-6">
+
+      <!-- Stats Quick Bar -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Leads Discovered</div>
+            <div id="stat-total-leads" class="text-2xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">🎯</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Enriched Signals</div>
+            <div id="stat-enriched-leads" class="text-2xl font-bold text-emerald-400 mt-1">0</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">⚡</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Awaiting Approval</div>
+            <div id="stat-pending-approvals" class="text-2xl font-bold text-amber-400 mt-1">0</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">⏳</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Contacted / Pipeline</div>
+            <div id="stat-contacted-leads" class="text-2xl font-bold text-purple-400 mt-1">0</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">📬</div>
+        </div>
+      </div>
+
+      <!-- Split Layout: Copilot Chat (Left) + CRM Pipeline & Approvals (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: AI Sales Copilot Chat (5 Columns) -->
+        <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 rounded-2xl flex flex-col h-[650px] shadow-xl overflow-hidden">
+          <!-- Chat Header -->
+          <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="font-semibold text-sm">GrowthPilot Sales Copilot</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">claude-haiku</span>
+          </div>
+
+          <!-- Suggested ICP Chips -->
+          <div class="px-4 py-2 border-b border-slate-800/60 bg-slate-900/20 flex flex-wrap gap-1.5 text-xs">
+            <span class="text-slate-500 text-[11px] py-1">Quick Prompts:</span>
+            <button onclick="setPrompt('Find me cybersecurity B2B SaaS companies with 20-50 employees')" class="chip-btn">
+              Cybersecurity SaaS
+            </button>
+            <button onclick="setPrompt('Find digital marketing agencies with 15-40 team members')" class="chip-btn">
+              Digital Agencies
+            </button>
+            <button onclick="setPrompt('Generate 3-touch follow-up cadence for Series A prospect')" class="chip-btn">
+              Follow-Up Cadence
+            </button>
+          </div>
+
+          <!-- Chat Messages Area -->
+          <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 text-sm">
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 font-bold">🤖</div>
+              <div class="bg-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-slate-700/60 text-slate-200 space-y-2">
+                <p>Welcome! I am <strong>GrowthPilot</strong>. I find verified leads matching your Ideal Customer Profile, enrich them with real funding and news, draft personalized cold outreach, and queue them for your approval.</p>
+                <p class="text-xs text-slate-400">Describe your target market or click a suggestion above to start the demo!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="p-3 border-t border-slate-800 bg-slate-900/50">
+            <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex gap-2">
+              <input type="text" id="chat-input" placeholder="e.g. Find B2B SaaS in DevOps with 10-30 employees..."
+                     class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+              <button type="submit" id="chat-submit-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/20">
+                <span>Send</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- RIGHT: Pipeline, Approval Inbox & Long-Term Memory Tabs (7 Columns) -->
+        <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 rounded-2xl flex flex-col h-[650px] shadow-xl overflow-hidden">
+          <!-- Right Tabs Header -->
+          <div class="p-3 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button id="tab-kanban-btn" onclick="switchRightTab('kanban')" class="subtab-btn active-subtab px-3 py-1.5 rounded-lg text-xs font-semibold">
+                Kanban Pipeline
+              </button>
+              <button id="tab-approvals-btn" onclick="switchRightTab('approvals')" class="subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1.5">
+                <span>Approval Inbox</span>
+                <span id="badge-approval-count" class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-slate-900 font-bold">0</span>
+              </button>
+              <button id="tab-leads-btn" onclick="switchRightTab('leads')" class="subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">
+                All Leads Table
+              </button>
+              <button id="tab-memory-btn" onclick="switchRightTab('memory')" class="subtab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">
+                Long-Term Memory
+              </button>
+            </div>
+            <button onclick="refreshCustomerData()" class="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1">
+              <span>↻ Refresh</span>
+            </button>
+          </div>
+
+          <!-- TAB CONTENT CONTAINER -->
+          <div class="flex-1 p-4 overflow-y-auto">
+
+            <!-- 1. KANBAN PIPELINE -->
+            <div id="subtab-kanban" class="h-full">
+              <div class="grid grid-cols-3 gap-3 h-full">
+                <!-- Col 1: Discovered / Enriched -->
+                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-400">1. Discovered</span>
+                    <span id="count-col-discovered" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+                  </div>
+                  <div id="kanban-col-discovered" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Col 2: Needs Human Approval (Canvas Guardrail) -->
+                <div class="bg-slate-900/60 border border-amber-500/20 rounded-xl p-3 flex flex-col bg-amber-950/5">
+                  <div class="flex items-center justify-between pb-2 border-b border-amber-500/20 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                      <span>2. Needs Approval</span>
+                      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    </span>
+                    <span id="count-col-approval" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">0</span>
+                  </div>
+                  <div id="kanban-col-approval" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- Col 3: Contacted / Sent -->
+                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+                  <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">3. Contacted</span>
+                    <span id="count-col-contacted" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">0</span>
+                  </div>
+                  <div id="kanban-col-contacted" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. APPROVAL INBOX (Human-in-the-Loop Guard) -->
+            <div id="subtab-approvals" class="hidden space-y-4">
+              <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-center justify-between text-xs text-amber-300">
+                <div class="flex items-center gap-2">
+                  <span>🛡️</span>
+                  <span><strong>Canvas Safety Guard:</strong> AI drafts personalized outreach, but outbound sending is strictly blocked until you review and approve.</span>
+                </div>
+              </div>
+              <div id="approvals-container" class="space-y-3"></div>
+            </div>
+
+            <!-- 3. ALL LEADS TABLE -->
+            <div id="subtab-leads" class="hidden overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider">
+                    <th class="py-2.5 px-3">Company</th>
+                    <th class="py-2.5 px-3">Contact</th>
+                    <th class="py-2.5 px-3">Milestone / News</th>
+                    <th class="py-2.5 px-3">Pain Point</th>
+                    <th class="py-2.5 px-3">Stage</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-table-body" class="divide-y divide-slate-800 text-slate-300"></tbody>
+              </table>
+            </div>
+
+            <!-- 4. LONG-TERM MEMORY VIEW -->
+            <div id="subtab-memory" class="hidden space-y-4">
+              <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                <h4 class="font-bold text-sm text-white mb-1">Persistent Long-Term Memory (Keyed by user_id)</h4>
+                <p class="text-xs text-slate-400 mb-3">Persists across conversations in the database. Remembers target industries, tone, and preferences without storing conversation noise or raw PII.</p>
+                <div id="memories-list" class="space-y-2 text-xs"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: ADMIN DASHBOARD -->
+    <!-- ========================================== -->
+    <div id="view-admin" class="hidden space-y-6">
+
+      <!-- Budget & Token Health Bar ($2 Spend Limit Monitoring) -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700/80 p-6 rounded-2xl shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg">💰</span>
+              <h3 class="font-bold text-base text-white">Claude Haiku $2.00 Budget Telemetry</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Real-time spend calculated from exact token metrics ($0.80/M in, $4.00/M out).</p>
+          </div>
+          <div class="flex items-center gap-6">
+            <div class="text-right">
+              <div class="text-xs text-slate-400 uppercase">Total Spend</div>
+              <div id="admin-spend" class="text-xl font-bold text-emerald-400">$0.0000</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400 uppercase">Remaining Balance</div>
+              <div id="admin-remaining" class="text-xl font-bold text-white">$2.0000</div>
+            </div>
+          </div>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-950 h-3 rounded-full mt-4 overflow-hidden border border-slate-700/50">
+          <div id="budget-progress" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500" style="width: 1%"></div>
+        </div>
+      </div>
+
+      <!-- Admin Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-xl">
+          <span class="text-xs text-slate-400 uppercase">Total Users Isolated</span>
+          <div id="admin-users" class="text-2xl font-bold text-white mt-1">1</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-xl">
+          <span class="text-xs text-slate-400 uppercase">Total CRM Leads</span>
+          <div id="admin-leads" class="text-2xl font-bold text-white mt-1">0</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-xl">
+          <span class="text-xs text-slate-400 uppercase">Tokens Consumed (In / Out)</span>
+          <div id="admin-tokens" class="text-lg font-bold text-white mt-1">0 / 0</div>
+        </div>
+        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-xl">
+          <span class="text-xs text-slate-400 uppercase">Pending Approvals</span>
+          <div id="admin-pending" class="text-2xl font-bold text-amber-400 mt-1">0</div>
+        </div>
+      </div>
+
+      <!-- Live Benchmark & Safety Audit Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Benchmark Runner (7 Columns) -->
+        <div class="lg:col-span-7 bg-slate-800/60 border border-slate-800 p-5 rounded-2xl flex flex-col shadow-xl">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+            <div>
+              <h4 class="font-bold text-sm text-white flex items-center gap-2">
+                <span>🧪</span>
+                <span>Hackathon Benchmark Suite (15 Tests)</span>
+              </h4>
+              <p class="text-xs text-slate-400">10 Track-Specific Tests + 5 Common Attack Vector Tests.</p>
+            </div>
+            <button id="run-benchmark-btn" onclick="runBenchmarkInUI()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/20">
+              Run Benchmark Now ▶
+            </button>
+          </div>
+
+          <div id="benchmark-results" class="space-y-2 overflow-y-auto max-h-[350px] text-xs">
+            <div class="text-slate-500 text-center py-8">Click "Run Benchmark Now" to test all 15 scenarios against the live agent API.</div>
+          </div>
+        </div>
+
+        <!-- Safety & Guardrails Incident Log (5 Columns) -->
+        <div class="lg:col-span-5 bg-slate-800/60 border border-slate-800 p-5 rounded-2xl flex flex-col shadow-xl">
+          <div class="pb-3 border-b border-slate-800 mb-3">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              <span>🛡️</span>
+              <span>Safety & Attack Prevention Audit</span>
+            </h4>
+            <p class="text-xs text-slate-400">Intercepted prompt injections, jailbreaks & unapproved sends.</p>
+          </div>
+          <div id="safety-log-container" class="space-y-2 overflow-y-auto max-h-[350px] text-xs">
+            <div class="text-slate-500 text-center py-8">No security violations recorded yet.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
