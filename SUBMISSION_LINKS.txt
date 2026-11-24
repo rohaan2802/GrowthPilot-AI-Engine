@@ -1,0 +1,37 @@
+================================================================================
+GROWTHPILOT (GROUP 904) - HACKATHON SUBMISSION LINKS & DETAILS
+FAST School of Computing, Islamabad (Course: AI-4016 Agentic AI)
+================================================================================
+
+1. GROUP & TEAM DETAILS:
+   - Group Number: 904
+   - Track: Track 5 - GrowthPilot (AI Sales & Outreach Engine)
+   - Leader: Rayyan Azmat (Roll No: 22P-0507)
+   - Member: Muhammad Rohaan (Roll No: 22i-2327)
+
+2. REPOSITORY & DEPLOYMENT LINKS:
+   - GitHub Repository: https://github.com/rohaan2802/GrowthPilot-AI-Engine
+   - Live Website URL:  https://growthpilot-ai-engine.onrender.com/
+   - Agent API Base:    https://growthpilot-ai-engine.onrender.com
+   - Health Endpoint:   https://growthpilot-ai-engine.onrender.com/health (Status 200, 'ok')
+   - Chat Endpoint:     https://growthpilot-ai-engine.onrender.com/chat (POST)
+   - Benchmark Tests:   https://github.com/rohaan2802/GrowthPilot-AI-Engine/blob/main/tests.json
+
+3. SUBMISSION PORTALS:
+   - Official Google Form: https://docs.google.com/forms/d/e/1FAIpQLSd0cLrSXbuGEUVwVh2cLP3m58tq6-eE5sgR58QgxKpJux-mPA/viewform
+   - Google Classroom: Paste the same links and turn in.
+
+4. DELIVERABLES STATUS:
+   [X] Complete Website & Admin Dashboard
+   [X] LangGraph Multi-Agent Engine (7 Nodes)
+   [X] 4 Functional Tools
+   [X] Short-term Memory (10 turns trimming)
+   [X] Long-term Memory (SQLite persisted by user_id)
+   [X] Multi-User Isolation (user_alpha vs user_beta)
+   [X] Safety & Injection Defense + Human-in-the-Loop Approval
+   [X] Claude Haiku Model ($0.018 cost out of $2 budget)
+   [X] Live Render Deployment (200 OK)
+   [X] tests.json (15 tests, 100% pass)
+   [ ] 2-3 Min Demo Video (To be recorded and linked)
+   [ ] Canvas PDF Upload (Upload WorkShop_Wtitten_Activity.pdf to Google Drive and link)
+================================================================================

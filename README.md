@@ -10,6 +10,16 @@
 
 ---
 
+### 🌐 Quick Links & Live Deployment
+- 🚀 **Live Website URL:** [https://growthpilot-ai-engine.onrender.com/](https://growthpilot-ai-engine.onrender.com/)
+- 🤖 **Agent API Base URL:** [https://growthpilot-ai-engine.onrender.com](https://growthpilot-ai-engine.onrender.com)
+  - `POST https://growthpilot-ai-engine.onrender.com/chat` *(Automated Grading Endpoint)*
+  - `GET https://growthpilot-ai-engine.onrender.com/health` *(Returns `ok`)*
+- 📁 **Public GitHub Repository:** [https://github.com/rohaan2802/GrowthPilot-AI-Engine](https://github.com/rohaan2802/GrowthPilot-AI-Engine)
+- 🧪 **Automated Benchmark (15 Tests):** [tests.json](https://github.com/rohaan2802/GrowthPilot-AI-Engine/blob/main/tests.json) (100% Pass Rate)
+
+---
+
 ## 🌟 Executive Summary & Canvas Alignment
 
 **GrowthPilot** is an autonomous multi-agent outbound sales engine built for **B2B SaaS founders and digital agency owners**. Manual prospect research, lead qualification, and hyper-personalized cold outreach consumes 4–6 hours daily with dismal reply rates. GrowthPilot automates the entire outbound cycle:
